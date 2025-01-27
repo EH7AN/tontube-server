@@ -147,16 +147,18 @@ const _server = http.createServer(app);
 
 const { Server } = require("socket.io");
 
+const allowedOrigins = process.env?.ALLOWED_ORIGINS?.split(',') ?? '*';
+
 const io = new Server(_server,{
 	allowEIO3: true,
 	cors: {
 		credentials: true,
-		origin: '*',
+		origin: allowedOrigins,
 		methods: ["GET", "POST"]
 	}
   });
 
-_server.listen(() => {
+_server.listen(process.env.SERVER_PORT || 3000,() => {
   console.log(`Server is running on : ${_server.address().port}`);
 });
 
