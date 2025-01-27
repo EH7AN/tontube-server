@@ -1,18 +1,17 @@
-	const express = require('express')
+require('dotenv').config();
+
+const express = require('express')
 const fs = require('fs')
 const path = require('path')
 const app = express()
 const url = require('url');
-
-
-
-
+const http = require('http');
 
 const TonWeb = require("tonweb");
 const BN = TonWeb.utils.BN;
 const toNano = TonWeb.utils.toNano;
 const providerUrl = 'https://testnet.toncenter.com/api/v2/jsonRPC'; // TON HTTP API url. Use this url for testnet
-const apiKey = 'eb6b642b1de62cfbdeabcb772d95ee2f8989ae4094be51e6fb99b62518e9ad5d'; // Obtain your API key in https://t.me/tontestnetapibot
+const apiKey = process.env.API_KEY; // Obtain your API key in https://t.me/tontestnetapibot
 const tonweb = new TonWeb(new TonWeb.HttpProvider(providerUrl, {apiKey})); // Initialize TON SDK
 
 const seedA = TonWeb.utils.base64ToBytes('vt58J2v6FaSuXFGcyGtqT5elpVxcZ+I1zgu/GUfA5uY='); // A's private (secret) key
@@ -37,18 +36,9 @@ function objToUint8(obj) {
 	return Uint8Array.from(temp);
 }
 
-
-
-
-
-
-
 var clients = {};
 var previousSecret;
 var currentSecret;
-
-
-
 
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -149,24 +139,26 @@ app.get('/getVideo', function(req, res) {
 	}
 })
 
-app.listen(3001, function () {
-  console.log('Listening on port 3001!')
-})
 
 
 
-
+// Create an HTTP server and pass the Express app to it
+const _server = http.createServer(app);
 
 const { Server } = require("socket.io");
 
-const io = new Server({
+const io = new Server(_server,{
 	allowEIO3: true,
 	cors: {
 		credentials: true,
-		origin: ['http://localhost:3000', 'http://localhost:3001'],
+		origin: '*',
 		methods: ["GET", "POST"]
 	}
   });
+
+_server.listen(3000,() => {
+  console.log(`Server is running on : ${_server.address().port}`);
+});
 
 io.on("connection", (socket) => {
 	console.log(socket.id);
@@ -293,16 +285,6 @@ io.on("connection", (socket) => {
 				seqnoB: new BN(0)
 			};
 
-			// console.log('initial a balance: ', String((parseInt(parseFloat(latestState.client_balance) * 10000) + parseInt(parseFloat(latestState.server_balance) * 10000)) / 10000));
-			// console.log('channel config: ', channelConfig);
-			// console.log('server public key: ', keyPairA.publicKey);
-			// console.log('client public key: ', clientPublicKey);
-			// console.log('expected balance A', String((parseInt(parseFloat(latestState.client_balance) * 10000) - 100) / 10000));
-			// console.log('expected balance B', String((parseInt(parseFloat(latestState.server_balance) * 10000) + 100) / 10000));
-			// console.log('expected sequence number: ', latestState.client_sequence_number + 1);
-			// console.log('expected state: ', expectedState);
-			// console.log('received new state: ', newState);
-
 			let channelClosed = false;
 
 			if (newState.client_balance == 0) {
@@ -359,17 +341,8 @@ io.on("connection", (socket) => {
 		process();
 	});
 });
-io.listen(3030);
 
-console.log('socket.io listening on 3030');
-
-
-
-
-
-
-
-
+console.log(`socket.io listening on ${_server.address()}`);
 
 
 const now = Date.now() / 1000;
