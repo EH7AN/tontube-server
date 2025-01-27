@@ -11,7 +11,13 @@ const TonWeb = require("tonweb");
 const BN = TonWeb.utils.BN;
 const toNano = TonWeb.utils.toNano;
 const providerUrl = 'https://testnet.toncenter.com/api/v2/jsonRPC'; // TON HTTP API url. Use this url for testnet
+
+/**
+ * ===================== API key for TON SDK =====================
+ * ===================== @type {any}=====================
+ */
 const apiKey = process.env.API_KEY; // Obtain your API key in https://t.me/tontestnetapibot
+
 const tonweb = new TonWeb(new TonWeb.HttpProvider(providerUrl, {apiKey})); // Initialize TON SDK
 
 const seedA = TonWeb.utils.base64ToBytes('vt58J2v6FaSuXFGcyGtqT5elpVxcZ+I1zgu/GUfA5uY='); // A's private (secret) key
@@ -148,7 +154,7 @@ const _server = http.createServer(app);
 const { Server } = require("socket.io");
 
 const allowedOrigins = process.env?.ALLOWED_ORIGINS?.split(',') ?? '*';
-
+console.log('allowedOrigins = ', allowedOrigins);
 const io = new Server(_server,{
 	allowEIO3: true,
 	cors: {
