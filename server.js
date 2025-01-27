@@ -156,7 +156,7 @@ const io = new Server(_server,{
 	}
   });
 
-_server.listen(3000,() => {
+_server.listen(() => {
   console.log(`Server is running on : ${_server.address().port}`);
 });
 
@@ -342,7 +342,7 @@ io.on("connection", (socket) => {
 	});
 });
 
-console.log(`socket.io listening on ${_server.address()}`);
+console.log(`socket.io listening on ${_server.address().port}`);
 
 
 const now = Date.now() / 1000;
